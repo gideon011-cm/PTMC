@@ -3,11 +3,15 @@ local DataServiceTyped = require("../../../Packages/DataServiceTyped")
 local Data = {}
 
 Data.Template = {
-    Life_1 = {
-        Objects = {}
-    }
+	Life_1 = {
+		Objects = {
+			Placed = {},
+			Stored = {},
+		},
+	},
 }
 
 return DataServiceTyped({
-    template = Data.Template
+	template = Data.Template,
+	dontSave = true,
 })

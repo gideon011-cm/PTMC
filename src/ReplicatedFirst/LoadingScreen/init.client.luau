@@ -15,6 +15,8 @@ local player = Players.LocalPlayer
 ReplicatedFirst:RemoveDefaultLoadingScreen()
 
 local playerGui = player:WaitForChild("PlayerGui")
+local HUD = playerGui:WaitForChild("HUD")
+
 local loadingScreen = ReplicatedFirst:WaitForChild("Loading")
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
@@ -153,6 +155,7 @@ local function playPixelTransition()
 
 	loadingScreen:Destroy()
 	loadingBlur:Destroy()
+	HUD.Enabled = true
 
 	local shrinkInfo = TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 
