@@ -1,7 +1,9 @@
-local Knit = require("@game/ReplicatedStorage/Packages/Knit")
-local SetupTycoon = require("@self/SetupTycoon")
-local TycoonCleanup = require("@self/TycoonCleanup")
-local Utiles = require("@self/Utiles")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local TycoonCleanup = require(script.TycoonCleanup)
+local SetupTycoon = require(script.SetupTycoon)
+local Utiles = require(script.Utiles)
+local Knit = require(ReplicatedStorage.Packages.Knit)
 
 local TycoonService = Knit.CreateService({
 	Name = "TycoonService",
@@ -23,6 +25,14 @@ function TycoonService:ClaimUnclaimedTycoon(player: Player): Model
 	end
 
 	return tycoon
+end
+
+function TycoonService:GetTycoon(player : Player) : Model
+	return Utiles:GetTycoon(player)
+end
+
+function TycoonService.Client:GetTycoon(player : Player) : Model
+	return Utiles:GetTycoon(player)
 end
 
 function TycoonService:CleanupTycoon(tycoon: Model)

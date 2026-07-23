@@ -1,6 +1,10 @@
 local Players = game:GetService("Players")
-local Knit = require("@game/ReplicatedStorage/Packages/Knit")
-local safePlayerAdded = require("@game/ReplicatedStorage/Shared/Modules/Game/safePlayerAdded")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local onCharacterAdded = require(script.onCharacterAdded)
+local Knit = require(ReplicatedStorage.Packages.Knit)
+local Trove = require(ReplicatedStorage.Packages.Trove)
+local safePlayerAdded = require(ReplicatedStorage.Shared.Modules.Game.safePlayerAdded)
 
 local PlayerService = Knit.CreateService({
 	Name = "PlayerService",
@@ -13,6 +17,8 @@ function PlayerService:KnitInit()
 		[number]: Model,
 	}
 
+	local playerTroves = {} :: { any }
+
 	safePlayerAdded(function(player: Player)
 		--[[
             When a player joins claim a tycoon for them
@@ -20,7 +26,28 @@ function PlayerService:KnitInit()
         ]]
 		local tycoon = tycoonService:ClaimUnclaimedTycoon(player)
 
-		activeTycoons[player.UserId] = tycoon
+		local userId = player.UserId
+
+		activeTycoons[userId] = tycoon
+
+		--[[
+			Creates a trove and binds it to the player
+			when the player leaves the trove desotroys
+		]]
+		local newTrove = Trove.new()
+		playerTroves[userId] = newTrove
+
+		player:SetAttribute("Life", "Life_1") --!! TEST
+
+		--[[
+			First init on character added, then connects with trove
+		]]
+		local character = player.Character or player.CharacterAdded:Wait()
+
+		onCharacterAdded(character)
+		newTrove:Connect(player.CharacterAdded, onCharacterAdded)
+
+		newTrove:AttachToInstance(player)
 	end)
 
 	Players.PlayerRemoving:Connect(function(player: Player)

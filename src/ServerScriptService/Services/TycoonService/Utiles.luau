@@ -21,4 +21,21 @@ function Utiles:GetUnclaimedTycoon() : Model | nil?
     return nil
 end
 
+function Utiles:GetTycoon(player : Player) : Model
+    for _, tycoon : Model in pairs(Tycoons:GetChildren()) do
+        local isClaimed = self:IsTycoonClaimed(tycoon)
+        
+        --[[
+            Checks if it claimed and then checks if it claimed by the givin player
+        ]]
+        if isClaimed then
+            local claimedByPlayer = tycoon:GetAttribute("Claimed") == player.UserId
+
+            if claimedByPlayer then
+                return tycoon
+            end
+        end
+    end
+end
+
 return Utiles

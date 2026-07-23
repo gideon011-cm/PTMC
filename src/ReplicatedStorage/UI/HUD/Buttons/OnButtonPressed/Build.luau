@@ -6,7 +6,7 @@ local function onBuildPressed(HUD : ScreenGui)
     --[[
         Gets the needed variables
     ]]
-    local BuildFrame = HUD.BuildFrame --! chance it did not load
+    local BuildFrame = HUD:WaitForChild("BuildFrame")
     local visible = BuildFrame.Visible
 
     if not ogPosition then

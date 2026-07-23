@@ -6,7 +6,7 @@ local Extra = require(ReplicatedStorage.Shared.Modules.Game.Network.Extra)
     Starts sending ping to client
     client scripts like "FPS_LAG" needs this
 
-    !YEILDS
+    YEILDS
 ]]
 local function startSendingPing()
 	while task.wait(2) do

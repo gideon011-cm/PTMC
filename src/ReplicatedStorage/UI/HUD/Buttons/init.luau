@@ -14,7 +14,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local HUD = playerGui:WaitForChild("HUD")
 local Buttons = HUD:WaitForChild("Buttons")
 
-local Settings = require("@self/Settings")
+local Settings = require(script.Settings)
 
 local api = {}
 

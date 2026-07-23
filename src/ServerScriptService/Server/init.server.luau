@@ -8,6 +8,7 @@ local Modules = Shared:WaitForChild("Modules")
 
 local StartSendingPing = require(script.StartSendingPing)
 local BootStrapper = require(ReplicatedStorage.Packages.BootStrapper)
+local Cmdr = require(ReplicatedStorage.Packages.Cmdr)
 local Knit = require(ReplicatedStorage.Packages.Knit)
 
 Knit.AddServices(Services)
@@ -21,6 +22,8 @@ Knit.Start():andThen(function()
 	BootStrapper.loadDescendants(Modules, BootStrapper.byName("_$")) --[[
         Data
     ]]
+    
+    Cmdr:RegisterDefaultCommands()
 end)
 
 StartSendingPing()
