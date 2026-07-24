@@ -1,4 +1,11 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+
+local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Sounds = Assets:WaitForChild("Sounds")
+local UI = Sounds:WaitForChild("UI")
+local tab_on = UI:WaitForChild("Tab_Switch_Open")
+local tab_off = UI:WaitForChild("Tab_Switch_Off")
 
 local ogPosition = nil
 
@@ -30,6 +37,7 @@ local function onBuildPressed(HUD : ScreenGui)
 		end)
 
 		tween:Play()
+        tab_on:Play()
 	else
         --[[
             When the buildFrame isn't visible tween it to the originalPosition
@@ -41,6 +49,7 @@ local function onBuildPressed(HUD : ScreenGui)
 		local tween = TweenService:Create(BuildFrame, tweenInfo, { Position = ogPosition })
 
 		tween:Play()
+        tab_off:Play()
 	end
 end
 

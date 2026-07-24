@@ -4,8 +4,10 @@ local TweenService = game:GetService("TweenService")
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Sounds = Assets:WaitForChild("Sounds")
+local UISounds = Sounds:WaitForChild("UI")
 
-local UI_Hover = Sounds:WaitForChild("UI_Hover")
+local UI_Hover = UISounds:WaitForChild("UI_Hover")
+local UI_Click = UISounds:WaitForChild("UI_Click")
 
 local OnButtonPressed = script:WaitForChild("OnButtonPressed")
 
@@ -82,6 +84,7 @@ function api:Init()
                 --[[
                     Starts the module
                 ]]
+                UI_Click:Play()
                 module(HUD)
             end
         end)

@@ -12,17 +12,17 @@ Config.Objects = {
 
 Config.Placement = {
     CanOverlapWithOtherParts = false,
-	
-	CanPlaceColor = Color3.fromRGB(13, 105, 172),
-	CannotPlaceColor = Color3.fromRGB(255, 165, 0),
-	
-	LerpSpeed = 25,
-	
-	GridUnit = 0.2,
-	RotationUnit = 15,
-	
-	RotateY = Enum.KeyCode.R,
-	Cancel = Enum.KeyCode.X
+    
+    CanPlaceColor = Color3.fromRGB(13, 105, 172),
+    CannotPlaceColor = Color3.fromRGB(255, 165, 0),
+    
+    TweenDuration = 0.27,
+    
+    GridUnit = 1,
+    RotationUnit = 15,
+    
+    Rotate = Enum.KeyCode.R,
+    Cancel = Enum.KeyCode.X
 }
 
 return Config
