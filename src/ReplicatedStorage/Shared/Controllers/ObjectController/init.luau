@@ -4,6 +4,7 @@ local UserInputService = game:GetService("UserInputService")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Config = require(ReplicatedStorage.Shared.Modules.Core.Config)
 local Placement = require(script.Placement)
+local onPlaced = require(script.onPlaced)
 
 local currentTycoon = nil
 local gridTexture = nil
@@ -92,13 +93,15 @@ function ObjectController:KnitStart()
 				local cframe = Placement._CF
 				preview:PivotTo(cframe)
 
-				objectService:PlaceObject(lastPreview.Name, cframe):andThen(function(hasMore : boolean | string)
+				objectService:PlaceObject(lastPreview.Name, cframe):andThen(function(hasMore : boolean | string, model : Model)
 					if typeof(hasMore) == "boolean" and not hasMore then
 						self:StopObjectPreview()
 					elseif typeof(hasMore) == "string" and hasMore == "Error" then
 						warn("ERORR with objectService")
 						self:StopObjectPreview()
 					end
+
+					onPlaced(model)
 				end)
 			end
 		elseif input.KeyCode == Config.Placement.Rotate then

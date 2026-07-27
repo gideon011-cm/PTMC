@@ -14,7 +14,7 @@ local ObjectService = Knit.CreateService({
 	Name = "ObjectService",
 })
 
-function ObjectService.Client:PlaceObject(player: Player, objectName: string, placedCFrame: CFrame) : boolean | string
+function ObjectService.Client:PlaceObject(player: Player, objectName: string, placedCFrame: CFrame) : (boolean | string, Model?)
 	assert(typeof(objectName) == "string", "argument 'objectName' must be a string")
 	assert(typeof(placedCFrame) == "CFrame", "argument 'placedCFrame' must be a CFrame")
 
@@ -66,12 +66,12 @@ function ObjectService.Client:PlaceObject(player: Player, objectName: string, pl
 		-- Setting the key to nil via the proxy removes it and triggers replication
 		storedProxy[objectName](nil)
 		
-        return false
+        return false, clone
 	else
 		-- Update the amount field
 		storedProxy[objectName].Amount(newAmount)
 
-        return true
+        return true, clone
 	end
 end
 
