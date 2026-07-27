@@ -14,13 +14,14 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local HUD = playerGui:WaitForChild("HUD")
 local BuildFrame = HUD:WaitForChild("BuildFrame")
-local Contanier = BuildFrame:WaitForChild("Contanier")
+local Container = BuildFrame:WaitForChild("Contanier")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local Trove = require(ReplicatedStorage.Packages.Trove)
+local Placement = require(ReplicatedStorage.Shared.Controllers.ObjectController.Placement)
+local Types = require(ReplicatedStorage.Shared.Modules.Types)
 local RefreshFrames = require(script.RefreshFrames)
 local Data_ = require(ReplicatedStorage.Shared.Modules.Core.Data_).client
-
-local api = {}
 
 type FrameComponents = {
 	Button: GuiButton,
@@ -28,7 +29,17 @@ type FrameComponents = {
 	Center: Frame,
 }
 
-local function ImpactTween(object : Frame, originalSize : UDim2)
+local api = {
+	OgSizes = {}
+}
+
+type Objects = Types.Objects
+type StoredObject = Types.StoredObject
+
+local activeMainFrame = nil
+local activeClickedFrame = nil
+
+local function ImpactTween(object: Frame, originalSize: UDim2)
 	local grow = UDim2.fromScale(originalSize.X.Scale * 1.08, originalSize.Y.Scale * 1.08)
 	local shrink = UDim2.fromScale(originalSize.X.Scale * 0.94, originalSize.Y.Scale * 0.94)
 
@@ -37,13 +48,11 @@ local function ImpactTween(object : Frame, originalSize : UDim2)
 		TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 		{ Size = grow }
 	)
-
 	local t2 = TweenService:Create(
 		object,
 		TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
 		{ Size = shrink }
 	)
-
 	local t3 = TweenService:Create(
 		object,
 		TweenInfo.new(0.12, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
@@ -59,51 +68,95 @@ local function ImpactTween(object : Frame, originalSize : UDim2)
 	end)
 end
 
+local function deselectCurrent()
+	if not activeMainFrame or not activeClickedFrame then
+		return
+	end
+
+	activeClickedFrame.Visible = false
+	UI_BuildUnclick:Play()
+	ImpactTween(activeMainFrame, api.OgSizes[activeMainFrame])
+
+	local objectController = Knit.GetController("ObjectController")
+	objectController:StopObjectPreview()
+
+	activeMainFrame = nil
+	activeClickedFrame = nil
+end
+
 local function setupFrame(frame: Frame & FrameComponents)
+	local frameTrove = Trove.new()
+
 	local button = frame.Button
 	local main = frame.Main
 	local center = main.Center
+	local clickedFrame = center.ClickedFrame
+	local amountText = center.Amount
 
 	local ogSize = main.Size
-	local clickedFrame = center.ClickedFrame
+	api.OgSizes[main] = ogSize
 
-	local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut)
 	local hoverSize = UDim2.fromScale(ogSize.X.Scale * 0.91, ogSize.Y.Scale * 0.91)
+	local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut)
 
-	button.MouseEnter:Connect(function()
+	frameTrove:AttachToInstance(frame)
+
+	frameTrove:Add(button.MouseEnter:Connect(function()
 		TweenService:Create(main, tweenInfo, { Size = hoverSize }):Play()
-	end)
+	end))
 
-	button.MouseLeave:Connect(function()
+	frameTrove:Add(button.MouseLeave:Connect(function()
 		TweenService:Create(main, tweenInfo, { Size = ogSize }):Play()
-	end)
+	end))
 
-	local objectController = Knit.GetController("ObjectController")
+	frameTrove:Add(button.MouseButton1Click:Connect(function()
+		if activeMainFrame == main then
+			deselectCurrent()
+			return
+		end
 
-	button.MouseButton1Click:Connect(function()
-		clickedFrame.Visible = not clickedFrame.Visible
+		deselectCurrent()
+
+		clickedFrame.Visible = true
+		activeMainFrame = main
+		activeClickedFrame = clickedFrame
+
+		UI_BuildClick:Play()
 		ImpactTween(main, ogSize)
 
-		if clickedFrame.Visible then
-			UI_BuildClick:Play()
-			objectController:StartObjectPreview(Models[frame.Name])
+		local objectController = Knit.GetController("ObjectController")
+		objectController:StartObjectPreview(Models[frame.Name])
+	end))
+
+	local life = player:GetAttribute("Life")
+	frameTrove:Add(Data_[life].Objects.Stored[frame.Name].Changed(function(objectData: StoredObject)
+        --[[
+            If objectData is nil it means the data removed ot placed somewhere else
+        ]]
+		if not objectData then
+			if activeMainFrame == main then
+				deselectCurrent()
+			end
+
+			frame:Destroy()
 		else
-			UI_BuildUnclick:Play()
-			objectController:StopObjectPreview()
+			local amount = objectData.Amount
+			amountText.Text = "X" .. amount
 		end
-	end)
+	end))
 end
 
 function api:Init()
-	--[[
-        Gets the object that stored then refeshs the frames
-    ]]
 	local life = player:GetAttribute("Life")
 	local ObjectStored = Data_[life].Objects.Stored()
 
-	Contanier.ChildAdded:Connect(setupFrame)
+	Container.ChildAdded:Connect(setupFrame)
 
-	RefreshFrames(Contanier, ObjectStored)
+	Placement.PlacementEnded:Connect(function()
+		deselectCurrent()
+	end)
+
+	RefreshFrames(Container, ObjectStored)
 end
 
 return api

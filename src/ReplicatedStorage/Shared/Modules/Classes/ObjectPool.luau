@@ -59,10 +59,7 @@ end
 	and stored for future reuse.
 ]]
 function objectPool:Return(object: Instance)
-	if not self.active[object] then
-		warn(`Attempted to return an object that isn't active: {object:GetFullName()}`)
-		return
-	end
+	assert(self.active[object], "Object is not apart of active table")
 
 	self.active[object] = nil
 

@@ -121,6 +121,7 @@ function Placement:GetTargetCF(): CFrame?
     return CFrame.new(finalPosition) * finalRotation
 end
 
+local tweenInfo = TweenInfo.new(Config.Placement.TweenDuration or 0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 function Placement.Render()
     local canRender: boolean = Placement.CanRender
     local preview: Instance? = Placement:GetPreview()
@@ -161,8 +162,7 @@ function Placement.Render()
 
     if Placement._CF ~= targetCF then
         Placement._CF = targetCF
-        
-        local tweenInfo = TweenInfo.new(Config.Placement.TweenDuration or 0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+
         TweenService:Create(previewCFValue, tweenInfo, {Value = targetCF}):Play()
     end
 

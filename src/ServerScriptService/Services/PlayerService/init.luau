@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local onCharacterAdded = require(script.onCharacterAdded)
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Data_ = require(ReplicatedStorage.Shared.Modules.Core.Data_)
 local safePlayerAdded = require(ReplicatedStorage.Shared.Modules.Game.safePlayerAdded)
 
 local PlayerService = Knit.CreateService({

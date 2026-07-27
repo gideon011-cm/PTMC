@@ -5,11 +5,7 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local Config = require(ReplicatedStorage.Shared.Modules.Core.Config)
 local Placement = require(script.Placement)
 
-local ObjectController = Knit.CreateController({
-	Name = "ObjectController",
-})
-
-local tycoon = nil
+local currentTycoon = nil
 local gridTexture = nil
 local previewHitbox = nil
 local previewSelectionBox = nil
@@ -19,21 +15,12 @@ local previewHighlight = Instance.new("Highlight")
 previewHighlight.FillTransparency = 0.75
 previewHighlight.Parent = script
 
---[[
-	Updates the visual state of the placement preview.
+local ObjectController = Knit.CreateController({
+	Name = "ObjectController",
+})
 
-	enabled = true:
-	- Shows the hitbox
-	- Shows the SelectionBox
-	- Shows the placement grid
-
-	enabled = false:
-	- Hides the hitbox
-	- Hides the SelectionBox
-	- Hides the placement grid
-]]
-local function setPlacementVisuals(enabled: boolean, object : Instance)
-	if not tycoon then
+local function updatePlacementVisuals(enabled: boolean, object: Instance?)
+	if not currentTycoon then
 		return
 	end
 
@@ -53,49 +40,31 @@ local function setPlacementVisuals(enabled: boolean, object : Instance)
 end
 
 function ObjectController:KnitInit()
-	local tycoonService = Knit.GetService("TycoonService")
+	local TycoonService = Knit.GetService("TycoonService")
 
-	--[[
-		GetTycoon returns a Promise, so wait until the
-		player's tycoon has been successfully retrieved.
-	]]
-	tycoonService:GetTycoon():andThen(function(tycoonModel: Model)
-		tycoon = tycoonModel
+	TycoonService:GetTycoon()
+		:andThen(function(tycoonModel: Model)
+			currentTycoon = tycoonModel
 
-		local main = tycoon:WaitForChild("Main")
-		gridTexture = main.GridTexture
-	end)
-
-	--[[task.delay(3, function()
-		self:StartObjectPreview(ReplicatedStorage.Assets.Models.WoodWall)
-	end)]]
+			local main = currentTycoon:WaitForChild("Main")
+			gridTexture = main.GridTexture
+		end)
+		:catch(warn)
 end
 
 function ObjectController:KnitStart()
-	--[[
-		Placement has started.
-
-		Get the current preview and enable all
-		placement-related visuals.
-	]]
 	Placement.PlacementStarted:Connect(function()
 		local preview = Placement.GetPreview()
+		assert(preview, "No preview")
 
-		if not preview then
-			return
-		end
-
-		-- Cache these because the same preview is used
-		-- throughout the current placement session.
 		previewHitbox = preview.Hitbox
 		previewSelectionBox = previewHitbox.SelectionBox
-		
-		setPlacementVisuals(true, preview)
 
+		updatePlacementVisuals(true, preview)
 		lastPreview = preview
 	end)
 
-	Placement.Rendered:Connect(function(_, _, canPlace : boolean)
+	Placement.Rendered:Connect(function(_, _, canPlace: boolean)
 		local color = canPlace and Config.Placement.CanPlaceColor or Config.Placement.CannotPlaceColor
 
 		previewHighlight.FillColor = color
@@ -104,45 +73,50 @@ function ObjectController:KnitStart()
 		previewSelectionBox.Color3 = color
 	end)
 
-	--[[
-		Placement has ended.
-
-		Hide the preview visuals and placement grid.
-	]]
 	Placement.PlacementEnded:Connect(function()
-		setPlacementVisuals(false, lastPreview)
-
+		updatePlacementVisuals(false, lastPreview)
 		previewHitbox = nil
 		previewSelectionBox = nil
 	end)
+
+	local objectService = Knit.GetService("ObjectService")
 
 	UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
 		if gameProcessed then
 			return
 		end
 
-		if input.KeyCode == Config.Placement.Rotate then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local preview = Placement.GetPreview()
+			if preview and Placement.CanPlace then
+				local cframe = Placement._CF
+				preview:PivotTo(cframe)
+
+				objectService:PlaceObject(lastPreview.Name, cframe):andThen(function(hasMore : boolean | string)
+					if typeof(hasMore) == "boolean" and not hasMore then
+						self:StopObjectPreview()
+					elseif typeof(hasMore) == "string" and hasMore == "Error" then
+						warn("ERORR with objectService")
+						self:StopObjectPreview()
+					end
+				end)
+			end
+		elseif input.KeyCode == Config.Placement.Rotate then
 			Placement:Rotate(Vector3.yAxis)
+		elseif input.KeyCode == Config.Placement.Cancel then
+			self:StopObjectPreview()
 		end
 	end)
 end
 
---[[
-	Starts previewing an object for placement.
-
-	@param object The model that should be previewed.
-]]
 function ObjectController:StartObjectPreview(object: Model)
-	if not tycoon then
-		warn("ERRORORRORORORROREORRORORORORORORO WITHTHHHHHHHHH STARTOBJECT PREWIWQ")
-		return
-	end
+	assert(currentTycoon, "No tycoon in for preview")
 
-	Placement:SetPreview(object, tycoon)
+	Placement:SetPreview(object, currentTycoon)
 end
 
 function ObjectController:StopObjectPreview()
 	Placement:Cancel()
-end 
+end
 
 return ObjectController

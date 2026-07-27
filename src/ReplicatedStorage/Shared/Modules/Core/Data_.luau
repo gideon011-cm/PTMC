@@ -1,24 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataServiceTyped = require(ReplicatedStorage.Packages.DataServiceTyped)
+local Types = require(ReplicatedStorage.Shared.Modules.Types)
 
-export type StoredObject = {
-	Amount: number,
-}
-
-export type Objects = {
-	Placed: {},
-	Stored: {
-		[string]: StoredObject,
-	},
-}
-
-export type Life = {
-	Objects: Objects,
-}
-
-export type Template = {
-	Life_1: Life,
-}
+type Template = Types.Template
 
 local Data = {}
 
@@ -30,6 +14,10 @@ Data.Template = {
 				Maxwell = {
 					Amount = 1,
 				},
+
+				["Wooden Wall"] = {
+					Amount = 4,
+				},
 			},
 		},
 	},
@@ -37,5 +25,6 @@ Data.Template = {
 
 return DataServiceTyped({
 	template = Data.Template,
-	dontSave = true,
+	profileStoreIndex = "Private",
+	useMock = true
 })

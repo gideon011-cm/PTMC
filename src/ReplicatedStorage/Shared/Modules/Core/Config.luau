@@ -5,8 +5,14 @@ local Config = {}
 Config.Objects = {
     Maxwell = {
         Max = 1,
-        ImageId = "rbxassetid://76379192098522",
+        ImageId = "rbxassetid://79561629406259",
         Color = Colors.Gradients.Extoic
+    },
+
+    ["Wooden Wall"] = {
+        Max = 99,
+        ImageId = "rbxassetid://128067893234381",
+        Color = Colors.Gradients.Gray
     }
 }
 
