@@ -227,6 +227,8 @@ for _, child in ipairs(playerGui:GetDescendants()) do
 	table.insert(assetsToLoad, child)
 end
 
+table.insert(assetsToLoad, "rbxassetid://126477853433076")
+
 local totalAssets = #assetsToLoad
 local loadedAssets = 0
 

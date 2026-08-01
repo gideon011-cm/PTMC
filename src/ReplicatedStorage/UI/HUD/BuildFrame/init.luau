@@ -4,11 +4,6 @@ local TweenService = game:GetService("TweenService")
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Models = Assets:WaitForChild("Models")
-local Sounds = Assets:WaitForChild("Sounds")
-local UISounds = Sounds:WaitForChild("UI")
-
-local UI_BuildClick = UISounds:WaitForChild("UI_BuildClick")
-local UI_BuildUnclick = UISounds:WaitForChild("UI_BuildUnclick")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -30,7 +25,7 @@ type FrameComponents = {
 }
 
 local api = {
-	OgSizes = {}
+	OgSizes = {},
 }
 
 type Objects = Types.Objects
@@ -38,6 +33,7 @@ type StoredObject = Types.StoredObject
 
 local activeMainFrame = nil
 local activeClickedFrame = nil
+local SoundController = Knit.GetController("SoundController")
 
 local function ImpactTween(object: Frame, originalSize: UDim2)
 	local grow = UDim2.fromScale(originalSize.X.Scale * 1.08, originalSize.Y.Scale * 1.08)
@@ -74,7 +70,7 @@ local function deselectCurrent()
 	end
 
 	activeClickedFrame.Visible = false
-	UI_BuildUnclick:Play()
+	SoundController:PlayUI("UI_BuildUnclick")
 	ImpactTween(activeMainFrame, api.OgSizes[activeMainFrame])
 
 	local objectController = Knit.GetController("ObjectController")
@@ -117,20 +113,24 @@ local function setupFrame(frame: Frame & FrameComponents)
 
 		deselectCurrent()
 
+		local objectController = Knit.GetController("ObjectController")
+		local success = objectController:StartObjectPreview(Models[frame.Name])
+
+		if not success then
+			return
+		end
+
 		clickedFrame.Visible = true
 		activeMainFrame = main
 		activeClickedFrame = clickedFrame
 
-		UI_BuildClick:Play()
+		SoundController:PlayUI("UI_BuildClick")
 		ImpactTween(main, ogSize)
-
-		local objectController = Knit.GetController("ObjectController")
-		objectController:StartObjectPreview(Models[frame.Name])
 	end))
 
 	local life = player:GetAttribute("Life")
 	frameTrove:Add(Data_[life].Objects.Stored[frame.Name].Changed(function(objectData: StoredObject)
-        --[[
+		--[[
             If objectData is nil it means the data removed ot placed somewhere else
         ]]
 		if not objectData then

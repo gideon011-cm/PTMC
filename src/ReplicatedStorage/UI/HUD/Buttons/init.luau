@@ -2,13 +2,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
-local Assets = ReplicatedStorage:WaitForChild("Assets")
-local Sounds = Assets:WaitForChild("Sounds")
-local UISounds = Sounds:WaitForChild("UI")
-
-local UI_Hover = UISounds:WaitForChild("UI_Hover")
-local UI_Click = UISounds:WaitForChild("UI_Click")
-
 local OnButtonPressed = script:WaitForChild("OnButtonPressed")
 
 local player = Players.LocalPlayer
@@ -16,7 +9,10 @@ local playerGui = player:WaitForChild("PlayerGui")
 local HUD = playerGui:WaitForChild("HUD")
 local Buttons = HUD:WaitForChild("Buttons")
 
+local Knit = require(ReplicatedStorage.Packages.Knit)
 local Settings = require(script.Settings)
+
+local SoundController = Knit.GetController("SoundController")
 
 local api = {}
 
@@ -40,7 +36,7 @@ local function onHover(frame: Frame)
 
     tween:Play()
 
-    UI_Hover:Play()
+    SoundController:PlayUI("UI_Hover")
 end
 
 --[[
@@ -84,7 +80,7 @@ function api:Init()
                 --[[
                     Starts the module
                 ]]
-                UI_Click:Play()
+                SoundController:PlayUI("UI_Click")
                 module(HUD)
             end
         end)

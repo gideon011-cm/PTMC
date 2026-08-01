@@ -1,3 +1,3 @@
-return function(sharedData : {any})
+return function(sharedData: { any })
     
 end

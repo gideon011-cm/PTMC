@@ -1,10 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Config = require(ReplicatedStorage.Shared.Modules.Core.Config)
 local Placement = require(script.Placement)
 local onPlaced = require(script.onPlaced)
+local Notification = require(ReplicatedStorage.Shared.Modules.UI.Notification)
 
 local currentTycoon = nil
 local gridTexture = nil
@@ -112,10 +116,20 @@ function ObjectController:KnitStart()
 	end)
 end
 
-function ObjectController:StartObjectPreview(object: Model)
-	assert(currentTycoon, "No tycoon in for preview")
+function ObjectController:StartObjectPreview(object: Model) : boolean
+	if not currentTycoon then
+		warn("No tycoon found")
+		return false
+	end	
+
+	local distanceFromTycoon = (currentTycoon.PrimaryPart.Position - player.Character.PrimaryPart.Position).Magnitude
+	if distanceFromTycoon > Config.Placement.MaxDistance then
+		Notification("You are too far away from your tycoon to place this object.", 3)
+		return false
+	end
 
 	Placement:SetPreview(object, currentTycoon)
+	return true
 end
 
 function ObjectController:StopObjectPreview()

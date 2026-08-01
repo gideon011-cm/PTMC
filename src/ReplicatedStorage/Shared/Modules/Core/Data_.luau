@@ -20,11 +20,16 @@ Data.Template = {
 				},
 			},
 		},
+
+		Tutorial = {
+			Finished = false,
+			Step = 1,
+		},
 	},
 } :: Template
 
 return DataServiceTyped({
 	template = Data.Template,
 	profileStoreIndex = "Private",
-	useMock = true
+	useMock = true,
 })

@@ -28,7 +28,9 @@ Config.Placement = {
     RotationUnit = 15,
     
     Rotate = Enum.KeyCode.R,
-    Cancel = Enum.KeyCode.X
+    Cancel = Enum.KeyCode.X,
+
+    MaxDistance = 170
 }
 
 return Config

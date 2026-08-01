@@ -1,3 +1,5 @@
 return function(sharedData: { [any]: any })
-	sharedData.HealthConnection:Disconnect()
+	if sharedData.HealthBar then
+		sharedData.HealthBar:Destroy()
+	end
 end
