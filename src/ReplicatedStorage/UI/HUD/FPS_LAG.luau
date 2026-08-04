@@ -12,6 +12,8 @@ local FPS_LAG = HUD:WaitForChild("FPS_LAG")
 local api = {}
 
 local ping = 100
+local renderConnection
+local pingConnection
 
 local function getFPSColor(fps: number): string
 	if fps >= 120 then
@@ -70,14 +72,26 @@ function api:Init()
 	end
 
 	Start = TimeFunction()
-	RunService.RenderStepped:Connect(HeartbeatUpdate)
+	renderConnection = RunService.RenderStepped:Connect(HeartbeatUpdate)
 
 	--[[
 		Listens to the ping packet then sets the ping to "myPing"
 	]]
-	Extra.Ping.listen(function(myPing: number)
+	pingConnection = Extra.Ping.listen(function(myPing: number)
 		ping = myPing
 	end)
+end
+
+function api:Destroy()
+	if renderConnection then
+		renderConnection:Disconnect()
+		renderConnection = nil
+	end
+
+	if pingConnection then
+		pingConnection:Disconnect()
+		pingConnection = nil
+	end
 end
 
 return api

@@ -38,12 +38,16 @@ function Tutorial:StartCurrent()
 end
 
 function Tutorial:Destroy()
-    for _, connection in pairs(self.Connections) do
+    for _, connection in pairs(self.connections) do
         if connection then
             connection:Disconnect()
-            connection = nil
         end
     end
+
+    table.clear(self.connections)
+    self.connections = nil
+    self.stepFinished = nil
+    self.life = nil
 end
 
 return Tutorial

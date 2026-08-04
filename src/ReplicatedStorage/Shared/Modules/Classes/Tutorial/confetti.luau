@@ -3,7 +3,14 @@ Confetti.__index = Confetti
 
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+
+local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Sounds = Assets:WaitForChild("Sounds")
+local UISounds = Sounds:WaitForChild("UI")
+local bonusSound = UISounds:WaitForChild("Bonus")
+
 local player = Players.LocalPlayer
 
 local confettiShapes = { "Square", "Circle", "Triangle", "Diamond" }
@@ -94,20 +101,13 @@ function Confetti:Emit(amount, spawnPos: UDim2)
 
 	self.activeEmitters = (self.activeEmitters or 0) + 1
 
-	local bonusSound = Instance.new("Sound")
-	bonusSound.SoundId = "rbxassetid://2789427964"
-	bonusSound.Name = "BonusSound"
-	bonusSound.Parent = screenGui
-	repeat
-		task.wait()
-	until bonusSound.IsLoaded
 	bonusSound:Play()
 
 	for _ = 1, amount do
 		local confetti = self:CreateConfettiPiece(spawnPos)
 		confetti.Parent = screenGui
 
-		local velocityX, velocityY, gravity = math.random(-300, 300), math.random(-350, -200), 75
+		local velocityX, velocityY, gravity = math.random(-300, 300), math.random(-250, -200), 75
 		local rotationSpeed = math.random(-300, 300)
 		local startTime = tick()
 

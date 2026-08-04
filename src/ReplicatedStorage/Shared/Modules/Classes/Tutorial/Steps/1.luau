@@ -51,9 +51,12 @@ end
 
 local function step1(signal)
 	local tycoonService = Knit.GetService("TycoonService")
+	local connections = {}
+	local buildActivatedConnection = nil
+	local maxwellActivatedConnection = nil
 
-	buttons.Build.Button.Activated:Once(function()
-		buildFrame.Contanier.Maxwell.Button.Activated:Once(function()
+	buildActivatedConnection = buttons.Build.Button.Activated:Once(function()
+		maxwellActivatedConnection = buildFrame.Contanier.Maxwell.Button.Activated:Once(function()
 			TutorialHighlight.Clear()
 
 			tycoonService:GetTycoon():andThen(function(tycoon)
@@ -91,6 +94,13 @@ local function step1(signal)
 
 		TutorialHighlight.Focus(buildFrame.Contanier.Maxwell, 3.5, 0.5, 0.5)
 	end)
+
+	if buildActivatedConnection then
+		connections[#connections + 1] = buildActivatedConnection
+	end
+	if maxwellActivatedConnection then
+		connections[#connections + 1] = maxwellActivatedConnection
+	end
 
 	TutorialHighlight.Focus(buttons.Build, 3.5, 0.5, 0.5)
 end

@@ -19,7 +19,13 @@ Knit.AddControllers(Controllers)
 Knit.Start():andThen(function()
 	--[[
         UI loads after controllers.
+		Waits for the life attribute to be added to the player before running the UI.
     ]]
+
+	repeat
+		task.wait()
+	until player:GetAttribute("Loaded") ~= nil
+
 	BootStrapper.run({ ReplicatedStorage.UI }, "Start")
 	Topbar()
 

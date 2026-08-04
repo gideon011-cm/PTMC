@@ -8,6 +8,10 @@ local Data = {}
 
 Data.Template = {
 	Life_1 = {
+		Currency = {
+			Cash = 0
+		},
+
 		Objects = {
 			Placed = {},
 			Stored = {

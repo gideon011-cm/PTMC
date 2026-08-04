@@ -15,6 +15,7 @@ local gridTexture = nil
 local previewHitbox = nil
 local previewSelectionBox = nil
 local lastPreview = nil
+local placementConnections = {}
 
 local previewHighlight = Instance.new("Highlight")
 previewHighlight.FillTransparency = 0.75
@@ -58,7 +59,7 @@ function ObjectController:KnitInit()
 end
 
 function ObjectController:KnitStart()
-	Placement.PlacementStarted:Connect(function()
+	placementConnections[#placementConnections + 1] = Placement.PlacementStarted:Connect(function()
 		local preview = Placement.GetPreview()
 		assert(preview, "No preview")
 
@@ -69,7 +70,7 @@ function ObjectController:KnitStart()
 		lastPreview = preview
 	end)
 
-	Placement.Rendered:Connect(function(_, _, canPlace: boolean)
+	placementConnections[#placementConnections + 1] = Placement.Rendered:Connect(function(_, _, canPlace: boolean)
 		local color = canPlace and Config.Placement.CanPlaceColor or Config.Placement.CannotPlaceColor
 
 		previewHighlight.FillColor = color
@@ -78,7 +79,7 @@ function ObjectController:KnitStart()
 		previewSelectionBox.Color3 = color
 	end)
 
-	Placement.PlacementEnded:Connect(function()
+	placementConnections[#placementConnections + 1] = Placement.PlacementEnded:Connect(function()
 		updatePlacementVisuals(false, lastPreview)
 		previewHitbox = nil
 		previewSelectionBox = nil
@@ -86,7 +87,7 @@ function ObjectController:KnitStart()
 
 	local objectService = Knit.GetService("ObjectService")
 
-	UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
+	placementConnections[#placementConnections + 1] = UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
 		if gameProcessed then
 			return
 		end
@@ -134,6 +135,17 @@ end
 
 function ObjectController:StopObjectPreview()
 	Placement:Cancel()
+end
+
+function ObjectController:Destroy()
+	for _, connection in ipairs(placementConnections) do
+		if connection then
+			connection:Disconnect()
+		end
+	end
+
+	table.clear(placementConnections)
+	placementConnections = {}
 end
 
 return ObjectController

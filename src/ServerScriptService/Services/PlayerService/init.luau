@@ -4,7 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local onCharacterAdded = require(script.onCharacterAdded)
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local Data_ = require(ReplicatedStorage.Shared.Modules.Core.Data_)
 local safePlayerAdded = require(ReplicatedStorage.Shared.Modules.Game.safePlayerAdded)
 
 local PlayerService = Knit.CreateService({
@@ -38,7 +37,7 @@ function PlayerService:KnitInit()
 		local newTrove = Trove.new()
 		playerTroves[userId] = newTrove
 
-		player:SetAttribute("Life", "Life_1") --!! TEST
+		player:SetAttribute("Life", "Life_1")
 
 		--[[
 			First init on character added, then connects with trove
@@ -49,19 +48,29 @@ function PlayerService:KnitInit()
 		newTrove:Connect(player.CharacterAdded, onCharacterAdded)
 
 		newTrove:AttachToInstance(player)
+		
+		player:SetAttribute("Loaded", true)
 	end)
 
 	Players.PlayerRemoving:Connect(function(player: Player)
 		--[[
-            Cleaning up everything like they nerver even joined
+            Cleaning up everything like they never even joined
         ]]
 
 		local userId = player.UserId
 
 		local playerTycoon = activeTycoons[userId]
-		tycoonService:CleanupTycoon(playerTycoon)
+		if playerTycoon then
+			tycoonService:CleanupTycoon(playerTycoon)
+		end
 
 		activeTycoons[userId] = nil -- After we are done remove the player's tycoon from activeTycoons
+
+		local playerTrove = playerTroves[userId]
+		if playerTrove then
+			playerTrove:Destroy()
+			playerTroves[userId] = nil
+		end
 	end)
 end
 

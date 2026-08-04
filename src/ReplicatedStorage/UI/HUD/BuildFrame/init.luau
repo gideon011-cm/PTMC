@@ -148,6 +148,7 @@ end
 
 function api:Init()
 	local life = player:GetAttribute("Life")
+	
 	local ObjectStored = Data_[life].Objects.Stored()
 
 	Container.ChildAdded:Connect(setupFrame)

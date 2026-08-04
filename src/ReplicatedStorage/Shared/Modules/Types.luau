@@ -15,6 +15,9 @@ export type Objects = {
 
 export type Life = {
 	Objects: Objects,
+	Currency: {
+		Cash: number,
+	},
 }
 
 export type Template = {

@@ -1,7 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local confti = require(ReplicatedStorage.Shared.Modules.Classes.Tutorial.confti)
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -13,6 +12,9 @@ local main = round:WaitForChild("Main")
 
 local locked = main:WaitForChild("Locked") :: Frame
 local lock = locked:WaitForChild("Lock")
+
+local confti = require(ReplicatedStorage.Shared.Modules.Classes.Tutorial.confetti)
+local TutorialHighlight = require(ReplicatedStorage.Shared.Modules.Classes.Tutorial.TutorialHighlight)
 
 local newconfiti = confti.new()
 
@@ -47,6 +49,14 @@ end
 
 local function step2(signal)
 	unlock()
+
+	task.delay(1.85, function()
+		round.Button.Activated:Once(function()
+			TutorialHighlight.Clear()
+		end)
+		
+		TutorialHighlight.Focus(round, 10, 0.5, 0.5)
+	end)
 end
 
 return step2

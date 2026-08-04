@@ -11,6 +11,10 @@ local Extra = require(ReplicatedStorage.Shared.Modules.Game.Network.Extra)
 local function startSendingPing()
 	while task.wait(2) do
 		for _, player in pairs(Players:GetPlayers()) do
+            if not player:GetAttribute("Loaded") then
+                continue
+            end
+
             --[[
                 sends the player ping with a mutilper of 2000
                 server sends = 1000ms
