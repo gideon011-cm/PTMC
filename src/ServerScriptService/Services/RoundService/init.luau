@@ -42,23 +42,23 @@ function RoundService:KnitStart()
 end
 
 function RoundService.Client:StartRounds(player: Player)
-	RoundService.Client.IsActive:SetFor(player, true)
-    
     local handler = roundPlayerData[player].Handler
 
     handler.startRounds:Fire()
 
 	roundPlayerData[player].Active = true
+
+	RoundService.Client.IsActive:SetFor(player, true)
 end
 
 function RoundService.Client:StopRounds(player: Player)
-	RoundService.Client.IsActive:SetFor(player, false)
-
     local handler = roundPlayerData[player].Handler
 
     handler.endRounds:Fire()
 
 	roundPlayerData[player].Active = false
+
+	RoundService.Client.IsActive:SetFor(player, false)
 end
 
 function RoundService.Client:IsRoundActive(player: Player)

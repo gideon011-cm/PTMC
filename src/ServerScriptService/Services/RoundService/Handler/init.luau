@@ -23,6 +23,7 @@ function Handler.new(data: data)
 		connections = {},
 		startRounds = data.StartRounds,
 		endRounds = data.EndRounds,
+		Entities = {},
 	}
 
 	setmetatable(self, Handler)
@@ -39,11 +40,14 @@ function Handler.new(data: data)
 end
 
 function Handler:_StartRounds()
-	self:_SpawnCurrentRoundEntities()
+	self:_DestoryRoundEntities()
+
+	local entities = self:_SpawnCurrentRoundEntities()
+	self.Entities = entities
 end
 
 function Handler:_StopRounds()
-
+	self:_DestoryRoundEntities()
 end
 
 function Handler:_SpawnCurrentRoundEntities()
@@ -73,10 +77,26 @@ function Handler:_SpawnCurrentRoundEntities()
 		end
 	end
 
-	entityService:SpawnGroupOfEntity(entities, tycoon)
+	return entityService:SpawnGroupOfEntity(entities, tycoon)
+end
+
+function Handler:_DestoryRoundEntities()
+	local entityService = Knit.GetService("EntityService")
+	local entityIds = {}
+
+	for _, entity in ipairs(self.Entities) do
+		if entity.Id then
+			table.insert(entityIds, entity.Id)
+		end
+	end
+
+	entityService:DespawnGroupOfEntity(entityIds)
+	table.clear(self.Entities)
 end
 
 function Handler:Destroy()
+	self:_DestoryRoundEntities()
+
 	for _, connection in pairs(self.connections) do
 		if connection then
 			connection:Disconnect()
@@ -88,6 +108,7 @@ function Handler:Destroy()
 	self.startRounds = nil
 	self.endRounds = nil
 	self.currentRound = nil
+	self.Entities = nil
 end
 
 return Handler

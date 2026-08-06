@@ -61,8 +61,9 @@ local function getHealthPercent(model: Model): number
 	return math.clamp(health / maxHealth, 0, 1)
 end
 
-function HealthBar.new(model: Model): HealthBar
+function HealthBar.new(model: Model, adornee : BasePart): HealthBar
 	local gui = HealthGui:Clone()
+	gui.Adornee = adornee or nil
 	gui.Parent = model
 
 	local highlight = gui.Highlight

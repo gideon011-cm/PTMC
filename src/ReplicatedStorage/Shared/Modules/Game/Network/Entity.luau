@@ -8,11 +8,11 @@ return ByteNet.defineNamespace("Entity", function()
 				id = ByteNet.uint16,
 
 				-- Position
-				--[[x = ByteNet.float32,
+				x = ByteNet.float32,
 				z = ByteNet.float32,
 
 				-- Rotation around Y
-				rotation = ByteNet.float32,--]]
+				rotation = ByteNet.float32,
 			})),
 		}),
 	}

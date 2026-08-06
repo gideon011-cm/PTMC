@@ -1,4 +1,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:WaitForChild("Players")
+
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local HUD = playerGui:WaitForChild("HUD")
+local TopButtons = HUD:WaitForChild("TopButtons")
+local RoundFrame = TopButtons:WaitForChild("Round")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Colors = require(ReplicatedStorage.Shared.Modules.Core.Colors)
@@ -16,6 +24,9 @@ end
 local function onRoundPressed(frame: Frame & {
 	Main: Frame,
 })
+	RoundFrame.Button.Visible = false
+	RoundFrame.Main.Loading.Visible = true
+
 	local tycoonService = Knit.GetService("TycoonService")
 
 	tycoonService:GetTycoon():andThen(function(tycoon: Model & { Objects: Folder })
@@ -23,6 +34,8 @@ local function onRoundPressed(frame: Frame & {
 		local maxwell = objects:FindFirstChild("Maxwell")
 
 		if not maxwell then
+			RoundFrame.Main.Loading.Visible = false
+			RoundFrame.Button.Visible = true
 			Notification("Place down maxwell on your tycoon to start the round!", 4)
 			return
 		end
@@ -40,7 +53,6 @@ local function onRoundPressed(frame: Frame & {
 
 		roundService:IsRoundActive():andThen(function(value: boolean)
 			changed(value)
-
 			if value then
 				roundService:StopRounds()
 			else
