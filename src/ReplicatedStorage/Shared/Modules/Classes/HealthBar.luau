@@ -1,5 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+
+local Trove = require(ReplicatedStorage.Packages.Trove)
 local ObjectPool = require(ReplicatedStorage.Shared.Modules.Classes.ObjectPool)
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
@@ -61,7 +63,7 @@ local function getHealthPercent(model: Model): number
 	return math.clamp(health / maxHealth, 0, 1)
 end
 
-function HealthBar.new(model: Model, adornee : BasePart): HealthBar
+function HealthBar.new(model: Model, adornee : BasePart?): HealthBar
 	local gui = HealthGui:Clone()
 	gui.Adornee = adornee or nil
 	gui.Parent = model
@@ -82,6 +84,7 @@ function HealthBar.new(model: Model, adornee : BasePart): HealthBar
 		Gui = gui,
 		HighlightTemplate = highlightTemplate,
 		HighlightPool = highlightPool,
+		Trove = Trove.new(),
 		_destroyed = false,
 		_updateId = 0,
 		_lastHealthPercent = nil,
@@ -90,13 +93,15 @@ function HealthBar.new(model: Model, adornee : BasePart): HealthBar
 		_stackedDamagePercent = nil,
 	}, HealthBar)
 
-	self.HealthConnection = model:GetAttributeChangedSignal("Health"):Connect(function()
-		self:_Update()
-	end)
+	self.Trove:AttachToInstance(model)
 
-	self.DestroyConnection = model.Destroying:Connect(function()
+	self.Trove:Add(model:GetAttributeChangedSignal("Health"):Connect(function()
+		self:_Update()
+	end))
+
+	self.Trove:Add(model.Destroying:Connect(function()
 		self:Destroy()
-	end)
+	end))
 
 	self:_Update()
 
@@ -235,13 +240,7 @@ function HealthBar:Destroy()
 	self._destroyed = true
 	self._updateId += 1
 
-	if self.HealthConnection then
-		self.HealthConnection:Disconnect()
-	end
-
-	if self.DestroyConnection then
-		self.DestroyConnection:Disconnect()
-	end
+	self.Trove:Destroy()
 
 	if self._damageTween then
 		self._damageTween:Cancel()

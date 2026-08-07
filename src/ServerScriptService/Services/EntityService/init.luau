@@ -123,7 +123,7 @@ function EntityService:GetNextEntityId()
 	]]
 	nextEntityId += 1
 	return nextEntityId
-end 
+end
 
 function EntityService:SpawnGroupOfEntity(entityData: { { Name: string, CFrame: CFrame } }, tycoon: Model)
 	local entityDatas = {}

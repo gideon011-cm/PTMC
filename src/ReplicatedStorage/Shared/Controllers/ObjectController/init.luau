@@ -9,6 +9,7 @@ local Config = require(ReplicatedStorage.Shared.Modules.Core.Config)
 local Placement = require(script.Placement)
 local onPlaced = require(script.onPlaced)
 local Notification = require(ReplicatedStorage.Shared.Modules.UI.Notification)
+local EntityHitbox = require(ReplicatedStorage.Shared.Modules.Classes.EntityHitbox)
 
 local currentTycoon = nil
 local gridTexture = nil
@@ -63,8 +64,12 @@ function ObjectController:KnitStart()
 		local preview = Placement.GetPreview()
 		assert(preview, "No preview")
 
-		previewHitbox = preview.Hitbox
-		previewSelectionBox = previewHitbox.SelectionBox
+		previewHitbox = EntityHitbox.EnsureFor(preview, {
+			Name = "Hitbox",
+			Padding = Vector3.new(0.15, 0.15, 0.15),
+			CreateSelectionBox = true,
+		})
+		previewSelectionBox = previewHitbox and previewHitbox:FindFirstChild("SelectionBox")
 
 		updatePlacementVisuals(true, preview)
 		lastPreview = preview
@@ -75,8 +80,10 @@ function ObjectController:KnitStart()
 
 		previewHighlight.FillColor = color
 		previewHighlight.OutlineColor = color
-		previewSelectionBox.SurfaceColor3 = color
-		previewSelectionBox.Color3 = color
+		if previewSelectionBox then
+			previewSelectionBox.SurfaceColor3 = color
+			previewSelectionBox.Color3 = color
+		end
 	end)
 
 	placementConnections[#placementConnections + 1] = Placement.PlacementEnded:Connect(function()
@@ -87,41 +94,45 @@ function ObjectController:KnitStart()
 
 	local objectService = Knit.GetService("ObjectService")
 
-	placementConnections[#placementConnections + 1] = UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
-		if gameProcessed then
-			return
-		end
-
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			local preview = Placement.GetPreview()
-			if preview and Placement.CanPlace then
-				local cframe = Placement._CF
-				preview:PivotTo(cframe)
-
-				objectService:PlaceObject(lastPreview.Name, cframe):andThen(function(hasMore : boolean | string, model : Model)
-					if typeof(hasMore) == "boolean" and not hasMore then
-						self:StopObjectPreview()
-					elseif typeof(hasMore) == "string" and hasMore == "Error" then
-						warn("ERORR with objectService")
-						self:StopObjectPreview()
-					end
-
-					onPlaced(model)
-				end)
+	placementConnections[#placementConnections + 1] = UserInputService.InputBegan:Connect(
+		function(input: InputObject, gameProcessed: boolean)
+			if gameProcessed then
+				return
 			end
-		elseif input.KeyCode == Config.Placement.Rotate then
-			Placement:Rotate(Vector3.yAxis)
-		elseif input.KeyCode == Config.Placement.Cancel then
-			self:StopObjectPreview()
+
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				local preview = Placement.GetPreview()
+				if preview and Placement.CanPlace then
+					local cframe = Placement._CF
+					preview:PivotTo(cframe)
+
+					objectService
+						:PlaceObject(lastPreview.Name, cframe)
+						:andThen(function(hasMore: boolean | string, model: Model)
+							if typeof(hasMore) == "boolean" and not hasMore then
+								self:StopObjectPreview()
+							elseif typeof(hasMore) == "string" and hasMore == "Error" then
+								warn("ERORR with objectService")
+								self:StopObjectPreview()
+							end
+
+							onPlaced(model)
+						end)
+				end
+			elseif input.KeyCode == Config.Placement.Rotate then
+				Placement:Rotate(Vector3.yAxis)
+			elseif input.KeyCode == Config.Placement.Cancel then
+				self:StopObjectPreview()
+			end
 		end
-	end)
+	)
 end
 
-function ObjectController:StartObjectPreview(object: Model) : boolean
+function ObjectController:StartObjectPreview(object: Model): boolean
 	if not currentTycoon then
 		warn("No tycoon found")
 		return false
-	end	
+	end
 
 	local distanceFromTycoon = (currentTycoon.PrimaryPart.Position - player.Character.PrimaryPart.Position).Magnitude
 	if distanceFromTycoon > Config.Placement.MaxDistance then

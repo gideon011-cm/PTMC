@@ -6,7 +6,6 @@ local player = Players.LocalPlayer
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Controllers = Shared:WaitForChild("Controllers")
 
-local BootStrapper = require(ReplicatedStorage.Packages.BootStrapper)
 local Cmdr = require(ReplicatedStorage:WaitForChild("CmdrClient")) :: ModuleScript
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Tutorial = require(ReplicatedStorage.Shared.Modules.Classes.Tutorial)
@@ -26,7 +25,6 @@ Knit.Start():andThen(function()
 		task.wait()
 	until player:GetAttribute("Loaded") ~= nil
 
-	BootStrapper.run({ ReplicatedStorage.UI }, "Start")
 	Topbar()
 
 	Cmdr:SetActivationKeys({ Enum.KeyCode.F2 })

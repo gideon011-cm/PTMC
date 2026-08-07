@@ -1,4 +1,5 @@
-local BootStrapper = require("./Packages/BootStrapper")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BootStrapper = require(ReplicatedStorage.Packages.BootStrapper)
 
 local UI = {}
 
